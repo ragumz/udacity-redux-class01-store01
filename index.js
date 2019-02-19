@@ -38,3 +38,32 @@ function todos (state = [], action) {
 
   return state
 }
+
+
+// Tests
+const store = createStore(todos)
+
+//register subscriber
+store.subscribe(() => {
+  console.log('The new state is: ', store.getState())
+});
+
+//change the state
+store.dispatch({
+  type: 'ADD_TODO',
+  todo: {
+    id: 0,
+    name: 'Learn Redux',
+    complete: false
+  }
+});
+
+//change the state
+store.dispatch({
+  type: 'ADD_TODO',
+  todo: {
+    id: 1,
+    name: 'React+Redux',
+    complete: true
+  }
+});
