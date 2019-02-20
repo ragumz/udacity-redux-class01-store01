@@ -56,8 +56,19 @@ function goals (state = [], action) {
   }
 }
 
+//root reducer
+function app (state = {}, action) {
+  return {
+    todos: todos(state.todos, action),
+    goals: goals(state.goals, action),
+  }
+}
+
+
+//********
 // Tests
-const store = createStore(todos)
+//********
+const store = createStore(app)
 
 //register subscriber
 store.subscribe(() => {
@@ -69,17 +80,56 @@ store.dispatch({
   type: 'ADD_TODO',
   todo: {
     id: 0,
-    name: 'Learn Redux',
-    complete: false
+    name: 'Walk the dog',
+    complete: false,
   }
-});
+})
 
-//change the state
 store.dispatch({
   type: 'ADD_TODO',
   todo: {
     id: 1,
-    name: 'React+Redux',
-    complete: true
+    name: 'Wash the car',
+    complete: false,
   }
-});
+})
+
+store.dispatch({
+  type: 'ADD_TODO',
+  todo: {
+    id: 2,
+    name: 'Go to the gym',
+    complete: true,
+  }
+})
+
+store.dispatch({
+  type: 'REMOVE_TODO',
+  id: 1
+})
+
+store.dispatch({
+  type: 'TOGGLE_TODO',
+  id: 0
+})
+
+store.dispatch({
+  type: 'ADD_GOAL',
+  goal: {
+    id: 0,
+    name: 'Learn Redux'
+  }
+})
+
+store.dispatch({
+  type: 'ADD_GOAL',
+  goal: {
+    id: 1,
+    name: 'Lose 20 pounds'
+  }
+})
+
+store.dispatch({
+  type: 'REMOVE_GOAL',
+  id: 0
+})
