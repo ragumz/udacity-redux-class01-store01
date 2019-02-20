@@ -30,13 +30,17 @@ function createStore (reducer) {
   }
 }
 
+//**********
 // App Code
+//**********
+//action string constants
 const ADD_TODO = 'ADD_TODO'
 const REMOVE_TODO = 'REMOVE_TODO'
 const TOGGLE_TODO = 'TOGGLE_TODO'
 const ADD_GOAL = 'ADD_GOAL'
 const REMOVE_GOAL = 'REMOVE_GOAL'
 
+//action creator functions
 function addTodoAction (todo) {
   return {
     type: ADD_TODO,
@@ -72,7 +76,7 @@ function removeGoalAction (id) {
   }
 }
 
-
+//reducer functions
 function todos (state = [], action) {
   switch(action.type) {
     case ADD_TODO :
@@ -143,7 +147,7 @@ function tweets (state = {}, action) {
   }
 }*/
 
-//root reducer
+//root reducer function
 function app (state = {}, action) {
   return {
 	//update array of todos state
@@ -157,6 +161,8 @@ function app (state = {}, action) {
 //********
 // Tests
 //********
+
+//store creations
 const store = createStore(app)
 
 //register subscriber
@@ -164,7 +170,7 @@ store.subscribe(() => {
   console.log('The new state is: ', store.getState())
 });
 
-//change the state
+//dispatching state change with action creator functions
 store.dispatch(addTodoAction({
   id: 0,
   name: 'Walk the dog',
