@@ -56,10 +56,25 @@ function goals (state = [], action) {
   }
 }
 
+//Tweet exercise reducer
+function tweets (state = {}, action) {
+  switch(action.type){
+      case 'ADD_TWEET' :
+        ...
+      case 'REMOVE_TWEET' :
+        ...
+      case 'UPDATE_AVATAR' :
+        return state.map((tweet) => tweet.id !== action.tweetId ? tweet :
+			Object.assign({}, tweet, { author: { avatar: action.newAvatar }}))
+  }
+}
+
 //root reducer
 function app (state = {}, action) {
   return {
+	//update array of todos state
     todos: todos(state.todos, action),
+	//update array of goals state
     goals: goals(state.goals, action),
   }
 }
