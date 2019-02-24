@@ -246,52 +246,7 @@
       todos.forEach(addTodoToDOM)
     });
 
-    /*
-    //dispatching state change with action creator functions
-    store.dispatch(
-      addTodoAction({
-        id: 0,
-        name: "Walk the dog",
-        complete: false
-      })
-    );
 
-    store.dispatch(
-      addTodoAction({
-        id: 1,
-        name: "Wash the car",
-        complete: false
-      })
-    );
-
-    store.dispatch(
-      addTodoAction({
-        id: 2,
-        name: "Go to the gym",
-        complete: true
-      })
-    );
-
-    store.dispatch(removeTodoAction(1));
-
-    store.dispatch(toggleTodoAction(0));
-
-    store.dispatch(
-      addGoalAction({
-        id: 0,
-        name: "Learn Redux"
-      })
-    );
-
-    store.dispatch(
-      addGoalAction({
-        id: 1,
-        name: "Lose 20 pounds"
-      })
-    );
-
-    store.dispatch(removeGoalAction(0));
-    */
     //*********
     //UI actions
     //*********
@@ -375,10 +330,26 @@
       )
     }
     class Todos extends React.Component {
+      addItem = (e) => {
+        e.preventDefault()
+        const name = this.input.value
+        this.input.value = ''
+        this.props.store.dispatch(addTodoAction({
+          name,
+          complete: false,
+          id: generateId()
+        }))
+      }
       render() {
         return (
           <div>
-            TODOS
+            <h1>Todo List</h1>
+            <input
+              type='text'
+              placeholder='Add Todo'
+              ref={(input) => this.input = input}
+            />
+            <button onClick={this.addItem}>Add Todo</button>
             <List />
           </div>
         )
@@ -398,14 +369,14 @@
       render() {
         return (
           <div>
-            <Todos />
+            <Todos store={this.props.store} />
             <Goals />
           </div>
         )
       }
     }
     ReactDOM.render(
-      <App />,
+      <App store={store}/>,
       document.getElementById('app')
     )
   </script>
