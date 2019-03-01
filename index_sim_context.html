@@ -288,10 +288,19 @@
       }
     }
 
-   const ConnectedTodos = connect((state) => ({
-      // Connected Component created by Higher order Component with Currying
-      todos: state.todos
-    }))(Todos)
+    class ConnectedTodos extends React.Component {
+      // Connected Component
+      render() {
+        return (
+          <Context.Consumer>
+            {(store) => {
+              const { todos } = store.getState()
+              return <Todos todos={todos} dispatch={store.dispatch} />
+            }}
+          </Context.Consumer>
+        )
+      }
+    }
 
 
     class Goals extends React.Component {
@@ -325,23 +334,33 @@
       }
     }
 
-    const ConnectedGoals = connect((state) => ({
-      // Connected Component created by Higher order Component with Currying
-      goals: state.goals
-    }))(Goals)
+    class ConnectedGoals extends React.Component {
+      // Connected Component
+      render() {
+        return (
+          <Context.Consumer>
+            {(store) => {
+              const { goals } = store.getState()
+              return <Goals goals={goals} dispatch={store.dispatch} />
+            }}
+          </Context.Consumer>
+        )
+      }
+    }
 
 
     class App extends React.Component {
-      //Presentation Component
+
       componentDidMount() {
-        const { dispatch } = this.props
-        dispatch(handleInitialData())
+        const { store } = this.props
+        store.dispatch(handleInitialData())
+        store.subscribe(() => this.forceUpdate())
       }
 
       render() {
-        /*const { store } = this.props
-        const { todos, goals, loading } = store.getState()*/
-        if (this.props.loading === true) {
+        const { store } = this.props
+        const { /*todos, goals,*/ loading } = store.getState()
+        if (loading === true) {
           return <h3>Loading Data...</h3>
         }
 
@@ -356,50 +375,19 @@
       }
     }
 
-    const ConnectedApp = connect((state) => ({
-      // Connected Component created by Higher order Component with Currying
-      loading: state.loading
-    }))(App)
-
-
-    const Context = React.createContext()
-
-
-    function connect(mapStateToProps) {
-      //Helper library to create defaul ConnectedComponent behavior
-      return (Component) => {
-        class Receiver extends React.Component {
-          componentDidMount() {
-            const { subscribe } = this.props.store
-            this.unsubscribe = subscribe(() => {
-              this.forceUpdate()
-            })
-          }
-          componentWillUnmount() {
-            this.unsubscribe()
-          }
-          render() {
-            const { dispatch, getState } = this.props.store
-            const state = getState()
-            const stateNeeded = mapStateToProps(state)
-            return (
-              <Component {...stateNeeded} dispatch={dispatch} />
-            )
-          }
-        }
-
-        class ConnectedComponent extends React.Component {
-          render() {
-            return (
-              <Context.Consumer>
-                {(store) => <Receiver store={store} />}
-              </Context.Consumer>
-            )
-          }
-        }
-        return ConnectedComponent
+    class ConnectedApp extends React.Component {
+      render() {
+        return (
+          <Context.Consumer>
+            {(store) => (
+              <App store={store} />
+            )}
+          </Context.Consumer>
+        )
       }
     }
+
+    const Context = React.createContext()
 
     class Provider extends React.Component {
       render() {
