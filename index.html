@@ -289,7 +289,7 @@
     }
 
    const ConnectedTodos = connect((state) => ({
-      // Connected Component created by Higher order Component with Currying
+      // Connected Component created by Higher order Component with Currying (1)(2), where (1) is the component data function that returns the props to pass to (2) the componente to be rendered
       todos: state.todos
     }))(Todos)
 
@@ -326,7 +326,7 @@
     }
 
     const ConnectedGoals = connect((state) => ({
-      // Connected Component created by Higher order Component with Currying
+      // Connected Component created by Higher order Component with Currying (1)(2), where (1) is the component data function that returns the props to pass to (2) the componente to be rendered
       goals: state.goals
     }))(Goals)
 
@@ -357,7 +357,7 @@
     }
 
     const ConnectedApp = connect((state) => ({
-      // Connected Component created by Higher order Component with Currying
+      // Connected Component created by Higher order Component with Currying (1)(2), where (1) is the component data function that returns the props to pass to (2) the componente to be rendered
       loading: state.loading
     }))(App)
 
@@ -370,18 +370,22 @@
       return (Component) => {
         class Receiver extends React.Component {
           componentDidMount() {
+            console.log("connect.Receiver.componentDidMount()")
             const { subscribe } = this.props.store
             this.unsubscribe = subscribe(() => {
               this.forceUpdate()
             })
           }
           componentWillUnmount() {
+            console.log("connect.Receiver.componentWillUnmount()")
             this.unsubscribe()
           }
           render() {
+            console.log("connect.Receiver.render()")
             const { dispatch, getState } = this.props.store
             const state = getState()
             const stateNeeded = mapStateToProps(state)
+            //The component to render of the second function argument
             return (
               <Component {...stateNeeded} dispatch={dispatch} />
             )
@@ -390,6 +394,7 @@
 
         class ConnectedComponent extends React.Component {
           render() {
+            console.log("connect.ConnectedComponent.render()" )
             return (
               <Context.Consumer>
                 {(store) => <Receiver store={store} />}
@@ -397,6 +402,8 @@
             )
           }
         }
+
+        //Return the new conected component attached to the context
         return ConnectedComponent
       }
     }
