@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
   <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
   <script src="https://unpkg.com/redux-thunk@2.2.0/dist/redux-thunk.min.js"></script>
+  <script src="https://unpkg.com/react-redux@5.0.6/dist/react-redux.min.js"></script>
 </head>
 <body>
   <!-- REACT UI BEGIN -->
@@ -20,7 +21,7 @@
     }
 
     //**********
-    // App Code
+    // APP CODE
     //**********
     //action string constants
     const ADD_TODO = "ADD_TODO";
@@ -30,7 +31,9 @@
     const REMOVE_GOAL = "REMOVE_GOAL";
     const RECEIVE_DATA = 'RECEIVE_DATA';
 
-    //action creator functions
+    //********
+    // ACTION CREATOR FUNCTIONS
+    //********
     function addTodoAction(todo) {
       return {
         type: ADD_TODO,
@@ -74,6 +77,10 @@
       };
     }
 
+
+    //********
+    // THUNK FUNCTIONS
+    //********
     //Thunk function to load initial data
     function handleInitialData() {
       return (dispatch) => {
@@ -294,19 +301,10 @@
       }
     }
 
-    class ConnectedTodos extends React.Component {
-      // Connected Component
-      render() {
-        return (
-          <Context.Consumer>
-            {(store) => {
-              const { todos } = store.getState()
-              return <Todos todos={todos} dispatch={store.dispatch} />
-            }}
-          </Context.Consumer>
-        )
-      }
-    }
+   const ConnectedTodos = connect((state) => ({
+      // Connected Component created by Higher order Component with Currying (1)(2), where (1) is the component data function that returns the props to pass to (2) the componente to be rendered
+      todos: state.todos
+    }))(Todos)
 
 
     class Goals extends React.Component {
@@ -340,33 +338,23 @@
       }
     }
 
-    class ConnectedGoals extends React.Component {
-      // Connected Component
-      render() {
-        return (
-          <Context.Consumer>
-            {(store) => {
-              const { goals } = store.getState()
-              return <Goals goals={goals} dispatch={store.dispatch} />
-            }}
-          </Context.Consumer>
-        )
-      }
-    }
+    const ConnectedGoals = connect((state) => ({
+      // Connected Component created by Higher order Component with Currying (1)(2), where (1) is the component data function that returns the props to pass to (2) the componente to be rendered
+      goals: state.goals
+    }))(Goals)
 
 
     class App extends React.Component {
-
+      //Presentation Component
       componentDidMount() {
-        const { store } = this.props
-        store.dispatch(handleInitialData())
-        store.subscribe(() => this.forceUpdate())
+        const { dispatch } = this.props
+        dispatch(handleInitialData())
       }
 
       render() {
-        const { store } = this.props
-        const { /*todos, goals,*/ loading } = store.getState()
-        if (loading === true) {
+        /*const { store } = this.props
+        const { todos, goals, loading } = store.getState()*/
+        if (this.props.loading === true) {
           return <h3>Loading Data...</h3>
         }
 
@@ -381,20 +369,57 @@
       }
     }
 
-    class ConnectedApp extends React.Component {
-      render() {
-        //Consume the declared Provider value props globally
-        return (
-          <Context.Consumer>
-            {(store) => (
-              <App store={store} />
-            )}
-          </Context.Consumer>
-        )
-      }
-    }
+    const ConnectedApp = connect((state) => ({
+      // Connected Component created by Higher order Component with Currying (1)(2), where (1) is the component data function that returns the props to pass to (2) the componente to be rendered
+      loading: state.loading
+    }))(App)
+
 
     const Context = React.createContext()
+
+
+    function connect(mapStateToProps) {
+      //Helper library to create defaul ConnectedComponent behavior
+      return (Component) => {
+        class Receiver extends React.Component {
+          componentDidMount() {
+            console.log("connect.Receiver.componentDidMount()")
+            const { subscribe } = this.props.store
+            this.unsubscribe = subscribe(() => {
+              this.forceUpdate()
+            })
+          }
+          componentWillUnmount() {
+            console.log("connect.Receiver.componentWillUnmount()")
+            this.unsubscribe()
+          }
+          render() {
+            console.log("connect.Receiver.render()")
+            const { dispatch, getState } = this.props.store
+            const state = getState()
+            const stateNeeded = mapStateToProps(state)
+            //The component to render of the second function argument
+            return (
+              <Component {...stateNeeded} dispatch={dispatch} />
+            )
+          }
+        }
+
+        class ConnectedComponent extends React.Component {
+          render() {
+            console.log("connect.ConnectedComponent.render()" )
+            return (
+              <Context.Consumer>
+                {(store) => <Receiver store={store} />}
+              </Context.Consumer>
+            )
+          }
+        }
+
+        //Return the new conected component attached to the context
+        return ConnectedComponent
+      }
+    }
 
     class Provider extends React.Component {
       render() {
